@@ -1,0 +1,68 @@
+#ifndef GROBNER_HASHES_H_
+#define GROBNER_HASHES_H_
+
+#include <boost/rational.hpp>
+
+#include "declarations.h"
+#include "modular.h"
+#include "monomial.h"
+#include "polynomial.h"
+
+namespace std {
+
+template<class ValueType>
+struct hash<grobner::Polynomial<ValueType>> {
+    size_t operator()(const grobner::Polynomial<ValueType>& polynomial) const;
+};
+
+template<>
+struct hash<grobner::Monomial> {
+    size_t operator()(const grobner::Monomial& monomial) const;
+};
+
+template<class ValueType, ValueType P>
+struct hash<grobner::Modular<ValueType, P>> {
+    size_t operator()(const grobner::Modular<ValueType, P>& modular) const;
+};
+
+template<class ValueType>
+struct hash<boost::rational<ValueType>> {
+    size_t operator()(const boost::rational<ValueType>& rational) const;
+};
+
+
+template<class ValueType>
+size_t hash<grobner::Polynomial<ValueType>>::operator()(const grobner::Polynomial<ValueType>& polynomial) const {
+    using Modular = grobner::Modular<long long, 1'000'000'007>;
+    Modular result = 0;
+    for (auto [monomial, coefficient] : polynomial) {
+        result += Modular(hash<grobner::Monomial>()(monomial)).get_value() ^ hash<ValueType>()(coefficient);
+    }
+    return result.get_value();
+}
+
+size_t hash<grobner::Monomial>::operator()(const grobner::Monomial& monomial) const {
+    using Modular = grobner::Modular<long long, 1'000'000'007>;
+    Modular result = 0;
+    Modular current = 1;
+    Modular P = 942437;  // just random prime number
+    for (int i = 0; i < monomial.size(); ++i) {
+        result += current * Modular(monomial[i]);
+        current *= P;
+    }
+    return result.get_value();
+}
+
+template<class ValueType, ValueType P>
+size_t hash<grobner::Modular<ValueType, P>>::operator()(const grobner::Modular<ValueType, P>& modular) const {
+    return hash<ValueType>()(modular.get_value());
+}
+
+template<class ValueType>
+size_t hash<boost::rational<ValueType>>::operator()(const boost::rational<ValueType>& rational) const {
+    return hash<ValueType>()(rational.numerator()) ^ hash<ValueType>()(rational.denominator());
+}
+
+}  // std
+
+#endif  // GROBNER_HASHES_H_
