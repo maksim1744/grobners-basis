@@ -1,10 +1,12 @@
 #ifndef GROBNER_POLYNOMIAL_H_
 #define GROBNER_POLYNOMIAL_H_
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "hashes.h"
 #include "monomial.h"
@@ -33,6 +35,9 @@ class Polynomial {
 
     bool is_zero() const;
     void set_to_zero();
+
+    template<class MonomialOrder>
+    std::vector<Monomial> get_monomials_sorted(const MonomialOrder& monomial_order) const;
 
     Polynomial& operator += (const Polynomial& other);
     Polynomial operator + (const Polynomial& other) const;
@@ -132,6 +137,19 @@ bool Polynomial<ValueType>::is_zero() const {
 template<class ValueType>
 void Polynomial<ValueType>::set_to_zero() {
     data.clear();
+}
+
+
+template<class ValueType>
+template<class MonomialOrder>
+std::vector<Monomial> Polynomial<ValueType>::get_monomials_sorted(const MonomialOrder& monomial_order) const {
+    std::vector<Monomial> monomials;
+    monomials.reserve(data.size());
+    for (auto [monomial, coefficient] : data) {
+        monomials.push_back(monomial);
+    }
+    std::sort(monomials.begin(), monomials.end(), monomial_order);
+    return monomials;
 }
 
 

@@ -11,6 +11,7 @@
 #include "monomial.h"
 #include "monomial_order.h"
 #include "polynomial.h"
+#include "polynomial_order.h"
 #include "polynomial_set.h"
 
 namespace grobner {
@@ -24,6 +25,7 @@ class Tests {
     static void test_polynomial();
     static void test_polynomial_set();
     static void test_monomial_order();
+    static void test_polynomial_order();
     static void test_algorithm();
  
   private:
@@ -37,6 +39,7 @@ void Tests::test_all() {
     test_polynomial();
     test_polynomial_set();
     test_monomial_order();
+    test_polynomial_order();
     test_algorithm();
 }
 
@@ -194,6 +197,24 @@ void Tests::test_monomial_order() {
     assert(DegLex::cmp(f, e) == 1);
 
     std::cout << "MonomialOrder tests passed" << std::endl;
+}
+
+void Tests::test_polynomial_order() {
+    using ValueType = Modular<17ll>;
+    using Poly = Polynomial<ValueType>;
+    using Order = PolynomialOrder<OrderSum<DegOrder, LexOrder>>;
+
+    assert(Order::cmp(Poly(), Poly()) == 0);
+    assert(Order::cmp(Poly(), Poly("1a")) == -1);
+    assert(Order::cmp(Poly("2a"), Poly("1a")) == 0);
+    assert(Order::cmp(Poly("2a"), Poly("1a+1b")) == -1);
+    assert(Order::cmp(Poly("2a"), Poly("2a+1b")) == -1);
+    assert(Order::cmp(Poly("2a"), Poly("2b+5c")) == 1);
+    assert(Order::cmp(Poly("2a+3b+8d"), Poly("1a-35b+3c")) == -1);
+    assert(Order::cmp(Poly("5abc"), Poly("1a^2d")) == -1);
+    assert(Order::cmp(Poly("5abc"), Poly("1a^2")) == 1);
+
+    std::cout << "PolynomialOrder tests passed" << std::endl;
 }
 
 void Tests::test_algorithm() {
