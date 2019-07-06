@@ -74,7 +74,7 @@ bool Monomial::is_divisible_by(const Monomial& other) const {
         }
     }
     for (size_t i = size(); i < other.size(); ++i) {
-        if (other[i] != DegreeType(0)) {
+        if (DegreeType(0) < other[i]) {
             return false;
         }
     }
