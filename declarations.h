@@ -4,10 +4,13 @@
 namespace grobner {
 
 class Monomial;
-template<class ValueType, ValueType P>
+
+template<auto P>
 class Modular;
+
 template<class ValueType>
 class Polynomial;
+
 template<class ValueType>
 class PolynomialSet;
 

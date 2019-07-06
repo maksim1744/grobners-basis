@@ -41,7 +41,7 @@ void Tests::test_all() {
 }
 
 void Tests::test_modular() {
-    using Modular = Modular<long long, 17>;
+    using Modular = Modular<17ll>;
 
     assert(Modular(2) == Modular(-15));
     assert(Modular(36) == Modular(-15));
@@ -125,7 +125,7 @@ void Tests::test_polynomial() {
 }
 
 void Tests::test_polynomial_set() {
-    using Value = Modular<long long, 17>;
+    using Value = Modular<17ll>;
     using Poly = Polynomial<Value>;
     using Set = PolynomialSet<Value>;
 
@@ -201,7 +201,7 @@ void Tests::test_algorithm() {
     using Lex = LexOrder;
     using DegLex = OrderSum<Deg, Lex>;
 
-    using Value = Modular<long long, 17>;
+    using Value = Modular<17ll>;
     using Poly = Polynomial<Value>;
     using Set = PolynomialSet<Value>;
 
@@ -284,7 +284,7 @@ void Tests::test_rational_polynomial() {
 }
 
 void Tests::test_z_p_polynomial() {
-    using Value = Modular<long long, 17>;
+    using Value = Modular<17ll>;
     using Poly = Polynomial<Value>;
 
     assert(Poly() == Poly(""));
@@ -313,7 +313,7 @@ void Tests::test_z_p_polynomial() {
     p.add_monomial(Monomial("xyz"), Value(70));
     assert(p == Poly("2c^3+1ab"));
 
-    using Poly2 = Polynomial<Modular<int, 2>>;
+    using Poly2 = Polynomial<Modular<2>>;
     assert(Poly2("2b+2a+28g") == Poly2());
 }
 

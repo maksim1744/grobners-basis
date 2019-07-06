@@ -6,9 +6,10 @@
 namespace grobner {
 
 // some methods work correctly only with prime P (get_inverse, division)
-template<class ValueType, ValueType P>
+template<auto P>
 class Modular {
   public:
+    using ValueType = decltype(P);
 
     Modular(ValueType _value = 0);
 
@@ -29,23 +30,23 @@ class Modular {
     Modular get_inverse() const;
     ValueType get_value() const;
 
-    template<class OtherValueType, OtherValueType Q>
-    friend std::ostream& operator << (std::ostream& out, const Modular<OtherValueType, Q>& other);
-    template<class OtherValueType, OtherValueType Q>
-    friend std::istream& operator >> (std::istream& in, Modular<OtherValueType, Q>& other);
+    template<auto Q>
+    friend std::ostream& operator << (std::ostream& out, const Modular<Q>& other);
+    template<auto Q>
+    friend std::istream& operator >> (std::istream& in, Modular<Q>& other);
 
   private:
     ValueType value;
     void normalize();
 };
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P>::Modular(ValueType _value) : value(_value) {
+template<auto P>
+Modular<P>::Modular(typename Modular<P>::ValueType _value) : value(_value) {
     normalize();
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P>& Modular<ValueType, P>::operator += (const Modular& other) {
+template<auto P>
+Modular<P>& Modular<P>::operator += (const Modular& other) {
     value += other.value;
     if (value >= P) {
         value -= P;
@@ -53,14 +54,14 @@ Modular<ValueType, P>& Modular<ValueType, P>::operator += (const Modular& other)
     return *this;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P> Modular<ValueType, P>::operator + (const Modular& other) const {
-    Modular<ValueType, P> result = *this;
+template<auto P>
+Modular<P> Modular<P>::operator + (const Modular& other) const {
+    Modular<P> result = *this;
     return result += other;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P>& Modular<ValueType, P>::operator -= (const Modular& other) {
+template<auto P>
+Modular<P>& Modular<P>::operator -= (const Modular& other) {
     value -= other.value;
     if (value < 0) {
         value += P;
@@ -68,54 +69,54 @@ Modular<ValueType, P>& Modular<ValueType, P>::operator -= (const Modular& other)
     return *this;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P> Modular<ValueType, P>::operator - (const Modular& other) const {
-    Modular<ValueType, P> result = *this;
+template<auto P>
+Modular<P> Modular<P>::operator - (const Modular& other) const {
+    Modular<P> result = *this;
     return result -= other;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P>& Modular<ValueType, P>::operator *= (const Modular& other) {
+template<auto P>
+Modular<P>& Modular<P>::operator *= (const Modular& other) {
     value = value * other.value % P;
     return *this;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P> Modular<ValueType, P>::operator * (const Modular& other) const {
-    Modular<ValueType, P> result = *this;
+template<auto P>
+Modular<P> Modular<P>::operator * (const Modular& other) const {
+    Modular<P> result = *this;
     return result *= other;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P>& Modular<ValueType, P>::operator /= (const Modular& other) {
+template<auto P>
+Modular<P>& Modular<P>::operator /= (const Modular& other) {
     (*this) *= other.get_inverse();
     return *this;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P> Modular<ValueType, P>::operator / (const Modular& other) const {
-    Modular<ValueType, P> result = *this;
+template<auto P>
+Modular<P> Modular<P>::operator / (const Modular& other) const {
+    Modular<P> result = *this;
     return result /= other;
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P> Modular<ValueType, P>::operator - () const {
+template<auto P>
+Modular<P> Modular<P>::operator - () const {
     return Modular(0) - (*this);
 }
 
-template<class ValueType, ValueType P>
-bool Modular<ValueType, P>::operator == (const Modular& other) const {
+template<auto P>
+bool Modular<P>::operator == (const Modular& other) const {
     return value == other.value;
 }
 
-template<class ValueType, ValueType P>
-bool Modular<ValueType, P>::operator != (const Modular& other) const {
+template<auto P>
+bool Modular<P>::operator != (const Modular& other) const {
     return value != other.value;
 }
 
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P> Modular<ValueType, P>::get_pow(ValueType power) const {
+template<auto P>
+Modular<P> Modular<P>::get_pow(ValueType power) const {
     if (power == 0) {
         return Modular(1);
     } else if (power < 0) {
@@ -134,30 +135,30 @@ Modular<ValueType, P> Modular<ValueType, P>::get_pow(ValueType power) const {
     }
 }
 
-template<class ValueType, ValueType P>
-Modular<ValueType, P> Modular<ValueType, P>::get_inverse() const {
+template<auto P>
+Modular<P> Modular<P>::get_inverse() const {
     return get_pow(P - 2);
 }
 
-template<class ValueType, ValueType P>
-ValueType Modular<ValueType, P>::get_value() const {
+template<auto P>
+typename Modular<P>::ValueType Modular<P>::get_value() const {
     return value;
 }
 
-template<class ValueType, ValueType P>
-std::ostream& operator << (std::ostream& out, const Modular<ValueType, P>& other) {
+template<auto P>
+std::ostream& operator << (std::ostream& out, const Modular<P>& other) {
     return out << other.value;
 }
 
-template<class ValueType, ValueType P>
-std::istream& operator >> (std::istream& in, Modular<ValueType, P>& other) {
+template<auto P>
+std::istream& operator >> (std::istream& in, Modular<P>& other) {
     in >> other.value;
     other.normalize();
     return in;
 }
 
-template<class ValueType, ValueType P>
-void Modular<ValueType, P>::normalize() {
+template<auto P>
+void Modular<P>::normalize() {
     if (value < 0) {
         value = value % P + P;
     } else if (value >= P) {
