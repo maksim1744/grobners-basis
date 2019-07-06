@@ -9,7 +9,7 @@
 #include "algorithm.h"
 #include "modular.h"
 #include "monomial.h"
-#include "order.h"
+#include "monomial_order.h"
 #include "polynomial.h"
 #include "polynomial_set.h"
 

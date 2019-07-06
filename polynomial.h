@@ -32,7 +32,7 @@ class Polynomial {
     const_iterator end() const;
 
     bool is_zero() const;
-    void clear();
+    void set_to_zero();
 
     Polynomial& operator += (const Polynomial& other);
     Polynomial operator + (const Polynomial& other) const;
@@ -130,7 +130,7 @@ bool Polynomial<ValueType>::is_zero() const {
 }
 
 template<class ValueType>
-void Polynomial<ValueType>::clear() {
+void Polynomial<ValueType>::set_to_zero() {
     data.clear();
 }
 
@@ -181,7 +181,7 @@ Polynomial<ValueType> Polynomial<ValueType>::operator * (const Monomial& other) 
 template<class ValueType>
 Polynomial<ValueType>& Polynomial<ValueType>::operator *= (const ValueType& other) {
     if (other == ValueType(0)) {
-        clear();
+        set_to_zero();
     } else {
         for (auto& [monomial, coefficient] : *this) {
             coefficient *= other;

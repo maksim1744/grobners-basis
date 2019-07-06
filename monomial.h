@@ -26,7 +26,7 @@ class Monomial {
 
     void read(std::stringstream& ss);
 
-    void clear();
+    void set_all_degrees_to_zero();
     size_t size() const;
     const DegreeType& operator[] (size_t i) const;
     void set_degree(size_t i, DegreeType degree);
@@ -83,12 +83,12 @@ bool Monomial::is_divisible_by(const Monomial& other) const {
 
 
 void Monomial::read(std::stringstream& ss) {
-    clear();
+    set_all_degrees_to_zero();
     while (read_variable(ss));
     remove_last_zeros();
 }
 
-void Monomial::clear()  {
+void Monomial::set_all_degrees_to_zero()  {
     degrees.clear();
 }
 

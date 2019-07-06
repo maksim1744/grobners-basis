@@ -2,7 +2,7 @@
 #define GROBNER_ALGORITHM_H_
 
 #include "monomial.h"
-#include "order.h"
+#include "monomial_order.h"
 #include "polynomial.h"
 #include "polynomial_set.h"
 
