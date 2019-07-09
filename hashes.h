@@ -8,7 +8,12 @@
 #include "monomial.h"
 #include "polynomial.h"
 
-namespace std {
+namespace grobner {
+
+template<class T>
+struct hash {
+    size_t operator()(const T& value) const;
+};
 
 template<class ValueType>
 struct hash<grobner::Polynomial<ValueType>> {
@@ -31,6 +36,11 @@ struct hash<boost::rational<ValueType>> {
 };
 
 
+template<class T>
+size_t hash<T>::operator()(const T& value) const {
+    return std::hash<T>()(value);
+}
+
 template<class ValueType>
 size_t hash<grobner::Polynomial<ValueType>>::operator()(const grobner::Polynomial<ValueType>& polynomial) const {
     using Modular = grobner::Modular<1'000'000'007ll>;
@@ -46,8 +56,8 @@ size_t hash<grobner::Monomial>::operator()(const grobner::Monomial& monomial) co
     Modular result = 0;
     Modular current = 1;
     Modular P = 942437;  // just random prime number
-    for (int i = 0; i < monomial.size(); ++i) {
-        result += current * Modular(monomial[i]);
+    for (int i = 0; i < monomial.container_size(); ++i) {
+        result += current * Modular(monomial.get_degree(i));
         current *= P;
     }
     return result.get_value();

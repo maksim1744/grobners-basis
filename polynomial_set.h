@@ -10,14 +10,11 @@
 
 namespace grobner {
 
-template<class ElemIt>
-class PairSetIterator;
-
 template<class ValueType>
 class PolynomialSet {
   public:
     using Polynomial = Polynomial<ValueType>;
-    using Container = std::unordered_set<Polynomial, std::hash<Polynomial>>;
+    using Container = std::unordered_set<Polynomial, grobner::hash<Polynomial>>;
     using iterator = typename Container::iterator;
     using const_iterator = typename Container::const_iterator;
     using pair_iterator = PairSetIterator<iterator>;
@@ -26,7 +23,7 @@ class PolynomialSet {
     bool operator != (const PolynomialSet& other) const;
 
     PolynomialSet();
-    PolynomialSet(const std::initializer_list<Polynomial>& list);
+    PolynomialSet(std::initializer_list<Polynomial> list);
 
     void insert(const Polynomial& polynomial);
     void erase(const Polynomial& polynomial);
@@ -42,7 +39,7 @@ class PolynomialSet {
     pair_iterator pend();
 
   private:
-    Container data;
+    Container data_;
 };
 
 
@@ -50,65 +47,68 @@ template<class ValueType>
 PolynomialSet<ValueType>::PolynomialSet() {}
 
 template<class ValueType>
-PolynomialSet<ValueType>::PolynomialSet(const std::initializer_list<Polynomial>& list) : data(list) {}
+PolynomialSet<ValueType>::PolynomialSet(std::initializer_list<Polynomial> list) : data_(list) {}
 
 template<class ValueType>
 bool PolynomialSet<ValueType>::operator == (const PolynomialSet& other) const {
-    return data == other.data;
+    return data_ == other.data_;
 }
 
 template<class ValueType>
 bool PolynomialSet<ValueType>::operator != (const PolynomialSet& other) const {
-    return data != other.data;
+    return data_ != other.data_;
 }
 
 template<class ValueType>
 void PolynomialSet<ValueType>::insert(const Polynomial& polynomial) {
-    data.insert(polynomial);
+    data_.insert(polynomial);
 }
 
 template<class ValueType>
 void PolynomialSet<ValueType>::erase(const Polynomial& polynomial) {
-    data.erase(polynomial);
+    data_.erase(polynomial);
 }
 
 template<class ValueType>
 void PolynomialSet<ValueType>::clear() {
-    data.clear();
+    data_.clear();
 }
 
 template<class ValueType>
 bool PolynomialSet<ValueType>::empty() const {
-    return data.empty();
+    return data_.empty();
 }
 
 template<class ValueType>
 size_t PolynomialSet<ValueType>::size() const {
-    return data.size();
+    return data_.size();
 }
 
 template<class ValueType>
 typename PolynomialSet<ValueType>::iterator PolynomialSet<ValueType>::begin() {
-    return data.begin();
+    return data_.begin();
 }
 
 template<class ValueType>
 typename PolynomialSet<ValueType>::iterator PolynomialSet<ValueType>::end() {
-    return data.end();
+    return data_.end();
 }
 
 template<class ValueType>
 typename PolynomialSet<ValueType>::const_iterator PolynomialSet<ValueType>::begin() const {
-    return data.begin();
+    return data_.begin();
 }
 
 template<class ValueType>
 typename PolynomialSet<ValueType>::const_iterator PolynomialSet<ValueType>::end() const {
-    return data.end();
+    return data_.end();
 }
 
 template<class ValueType>
 typename PolynomialSet<ValueType>::pair_iterator PolynomialSet<ValueType>::pbegin() {
+    if (empty()) {
+        return pend();
+    }
     return pair_iterator(++begin(), begin(), begin(), end());
 }
 

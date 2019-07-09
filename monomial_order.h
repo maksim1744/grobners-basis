@@ -62,16 +62,16 @@ bool DegOrder::operator()(const Monomial& first, const Monomial& second) const {
 
 
 int LexOrder::cmp(const Monomial& first, const Monomial& second) {
-    for (size_t i = 0; i < std::min(first.size(), second.size()); ++i) {
-        if (first[i] < second[i]) {
+    for (size_t i = 0; i < std::min(first.container_size(), second.container_size()); ++i) {
+        if (first.get_degree(i) < second.get_degree(i)) {
             return -1;
-        } else if (first[i] > second[i]) {
+        } else if (first.get_degree(i) > second.get_degree(i)) {
             return 1;
         }
     }
-    if (first.size() < second.size()) {
+    if (first.container_size() < second.container_size()) {
         return -1;
-    } else if (first.size() > second.size()) {
+    } else if (first.container_size() > second.container_size()) {
         return 1;
     } else {
         return 0;

@@ -11,10 +11,14 @@ class Modular {
   public:
     using ValueType = decltype(P);
 
-    Modular(ValueType _value = 0);
+    Modular(ValueType value = 0);
+
+    static ValueType make_normal(ValueType value);
 
     Modular& operator += (const Modular& other);
-    Modular operator + (const Modular& other) const;
+    // Modular operator + (const Modular& other) const;
+    template<auto Q>
+    friend Modular<Q> operator + (const Modular<Q>& first, const Modular<Q>& second);
     Modular& operator -= (const Modular& other);
     Modular operator - (const Modular& other) const;
     Modular& operator *= (const Modular& other);
@@ -36,35 +40,48 @@ class Modular {
     friend std::istream& operator >> (std::istream& in, Modular<Q>& other);
 
   private:
-    ValueType value;
+    ValueType value_;
+
     void normalize();
 };
 
 template<auto P>
-Modular<P>::Modular(typename Modular<P>::ValueType _value) : value(_value) {
-    normalize();
+Modular<P>::Modular(typename Modular<P>::ValueType value) : value_(make_normal(value)) {}
+
+template<auto P>
+typename Modular<P>::ValueType Modular<P>::make_normal(typename Modular<P>::ValueType value) {
+    value %= P;
+    if (value < 0) {
+        value += P;
+    }
+    return value;
 }
 
 template<auto P>
 Modular<P>& Modular<P>::operator += (const Modular& other) {
-    value += other.value;
-    if (value >= P) {
-        value -= P;
+    value_ += other.value_;
+    if (value_ >= P) {
+        value_ -= P;
     }
     return *this;
 }
 
 template<auto P>
-Modular<P> Modular<P>::operator + (const Modular& other) const {
-    Modular<P> result = *this;
-    return result += other;
+Modular<P> operator + (const Modular<P>& first, const Modular<P>& second) {
+    auto result = first;
+    return result += second;
 }
+// template<auto P>
+// Modular<P> Modular<P>::operator + (const Modular& other) const {
+//     Modular<P> result = *this;
+//     return result += other;
+// }
 
 template<auto P>
 Modular<P>& Modular<P>::operator -= (const Modular& other) {
-    value -= other.value;
-    if (value < 0) {
-        value += P;
+    value_ -= other.value_;
+    if (value_ < 0) {
+        value_ += P;
     }
     return *this;
 }
@@ -77,7 +94,7 @@ Modular<P> Modular<P>::operator - (const Modular& other) const {
 
 template<auto P>
 Modular<P>& Modular<P>::operator *= (const Modular& other) {
-    value = value * other.value % P;
+    value_ = value_ * other.value_ % P;
     return *this;
 }
 
@@ -106,12 +123,12 @@ Modular<P> Modular<P>::operator - () const {
 
 template<auto P>
 bool Modular<P>::operator == (const Modular& other) const {
-    return value == other.value;
+    return value_ == other.value_;
 }
 
 template<auto P>
 bool Modular<P>::operator != (const Modular& other) const {
-    return value != other.value;
+    return value_ != other.value_;
 }
 
 
@@ -142,28 +159,26 @@ Modular<P> Modular<P>::get_inverse() const {
 
 template<auto P>
 typename Modular<P>::ValueType Modular<P>::get_value() const {
-    return value;
+    return value_;
 }
 
 template<auto P>
 std::ostream& operator << (std::ostream& out, const Modular<P>& other) {
-    return out << other.value;
+    return out << other.value_;
 }
 
 template<auto P>
 std::istream& operator >> (std::istream& in, Modular<P>& other) {
-    in >> other.value;
-    other.normalize();
+    typename Modular<P>::ValueType tmp;
+    in >> tmp;
+    other = tmp;
     return in;
 }
 
+
 template<auto P>
 void Modular<P>::normalize() {
-    if (value < 0) {
-        value = value % P + P;
-    } else if (value >= P) {
-        value = value % P;
-    }
+    value_ = make_normal(value_);
 }
 
 }  // grobner

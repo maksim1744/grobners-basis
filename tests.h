@@ -154,14 +154,23 @@ void Tests::test_polynomial_set() {
     s1.insert(Poly("2a+2b"));
     s1.insert(Poly("2a^2+2b"));
     s1.insert(Poly("1b^100"));
-    for (auto poly : s1)
+    for (const auto& poly : s1) {
         s2.insert(poly);
+    }
     assert(s1 == s2);
 
     int cnt = 0;
-    for (auto it = s2.pbegin(); it != s2.pend(); ++it)
+    for (auto it = s2.pbegin(); it != s2.pend(); ++it) {
         ++cnt;
+    }
     assert(cnt == 6);
+
+    cnt = 0;
+    s2.clear();
+    for (auto it = s2.pbegin(); it != s2.pend(); ++it) {
+        ++cnt;
+    }
+    assert(cnt == 0);
 
     std::cout << "PolynomialSet tests passed" << std::endl;
 }
@@ -230,21 +239,21 @@ void Tests::test_algorithm() {
     assert(Algorithm::get_LCM(Monomial({5, 2, 0, 1}), Monomial({0, 1, 2, 0, 0})) == Monomial({5, 2, 2, 1}));
     assert(Algorithm::get_LCM(Monomial({123}), Monomial({234})) == Monomial("a^234"));
 
-    assert(Algorithm::get_leading_monomial<Deg>   (Poly("5a^2bd^30+10a^2b^2c+3d^50")) ==
+    assert(Algorithm::get_leading_term<Deg>   (Poly("5a^2bd^30+10a^2b^2c+3d^50")) ==
                                                                         std::make_pair(Monomial("d^50"), Value(3)));
-    assert(Algorithm::get_leading_monomial<Lex>   (Poly("5a^2bd^30+10a^2b^2c+3d^50")) ==
+    assert(Algorithm::get_leading_term<Lex>   (Poly("5a^2bd^30+10a^2b^2c+3d^50")) ==
                                                                         std::make_pair(Monomial("a^2b^2c"), Value(10)));
-    assert(Algorithm::get_leading_monomial<DegLex>(Poly("5a^2bd^30+10a^2b^2c")) ==
+    assert(Algorithm::get_leading_term<DegLex>(Poly("5a^2bd^30+10a^2b^2c")) ==
                                                                         std::make_pair(Monomial("a^2bd^30"), Value(5)));
 
     Poly g("1abc"), f1("1ab-1d"), f2("1ac-1d"), f3("1bd-1cd");
 
     auto g_tmp = g;
-    Algorithm::reduce_by<DegLex>(g, f1);
+    Algorithm::reduce_by<DegLex>(f1, &g);
     assert(g == Poly("1cd"));
 
     g = g_tmp;
-    Algorithm::reduce_by<DegLex>(g, f2);
+    Algorithm::reduce_by<DegLex>(f2, &g);
     assert(g == Poly("1bd"));
 
     assert(Algorithm::get_S<DegLex>(f1, f2) == f3);
@@ -252,19 +261,18 @@ void Tests::test_algorithm() {
     Set F = {f1, f2};
 
     auto f3_tmp = f3;
-    Algorithm::reduce_by<DegLex>(f3, F);
+    Algorithm::reduce_by<DegLex>(F, &f3);
     assert(f3 != Poly());
 
-    Algorithm::extend_to_grobners_basis<DegLex>(F);
+    Algorithm::extend_to_grobners_basis<DegLex>(&F);
     f3 = f3_tmp;
-    Algorithm::reduce_by<DegLex>(f3, F);
+    Algorithm::reduce_by<DegLex>(F, &f3);
     assert(f3 == Poly());
 
     for (auto it = F.pbegin(); it != F.pend(); ++it) {
-        auto f1 = *((*it).first);
-        auto f2 = *((*it).second);
+        auto [f1, f2] = *it;
         auto S = Algorithm::get_S<DegLex>(f1, f2);
-        Algorithm::reduce_by<DegLex>(S, F);
+        Algorithm::reduce_by<DegLex>(F, &S);
         assert(S == Poly());
     }
 
