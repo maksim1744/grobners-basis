@@ -154,7 +154,7 @@ bool Monomial::operator == (const Monomial& other) const {
 }
 
 bool Monomial::operator != (const Monomial& other) const {
-    return (degrees_ != other.degrees_);
+    return !(*this == other);
 }
 
 std::ostream& operator << (std::ostream& out, const Monomial& monomial) {

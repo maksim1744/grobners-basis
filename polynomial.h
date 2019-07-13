@@ -75,7 +75,7 @@ Polynomial<ValueType>::Polynomial() {}
 
 template<class ValueType>
 Polynomial<ValueType>::Polynomial(Monomial monomial) {
-    data_[monomial] = ValueType(1);
+    data_.emplace(monomial, 1);
 }
 
 template<class ValueType>
@@ -267,7 +267,7 @@ bool Polynomial<ValueType>::operator == (const Polynomial& other) const {
 
 template<class ValueType>
 bool Polynomial<ValueType>::operator != (const Polynomial& other) const {
-    return data_ != other.data_;
+    return !(*this == other);
 }
 
 

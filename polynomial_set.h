@@ -56,7 +56,7 @@ bool PolynomialSet<ValueType>::operator == (const PolynomialSet& other) const {
 
 template<class ValueType>
 bool PolynomialSet<ValueType>::operator != (const PolynomialSet& other) const {
-    return data_ != other.data_;
+    return !(*this == other);
 }
 
 template<class ValueType>

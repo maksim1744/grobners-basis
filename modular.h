@@ -128,7 +128,7 @@ bool Modular<P>::operator == (const Modular& other) const {
 
 template<auto P>
 bool Modular<P>::operator != (const Modular& other) const {
-    return value_ != other.value_;
+    return !(*this == other);
 }
 
 
