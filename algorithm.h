@@ -16,8 +16,9 @@ class Algorithm {
     template<class Order, class ValueType>
     static std::pair<Monomial, ValueType> get_leading_term(const Polynomial<ValueType>& f);
 
+    // returns true if something changed (g ~> g_0 != g)
     template<class Order, class ValueType>
-    static void reduce_by(const Polynomial<ValueType>& f, Polynomial<ValueType>* g);
+    static bool reduce_by(const Polynomial<ValueType>& f, Polynomial<ValueType>* g);
 
     template<class Order, class ValueType>
     static void reduce_by(const PolynomialSet<ValueType>& F, Polynomial<ValueType>* g);
@@ -32,6 +33,10 @@ class Algorithm {
     // tries to reduce g by f, returns true if the reduction was made
     template<class Order, class ValueType>
     static bool make_reduction_step(const Polynomial<ValueType>& f, Polynomial<ValueType>* g);
+
+    // tries to reduce g by F, returns true if the reduction was made
+    template<class Order, class ValueType>
+    static bool make_reduction_step(const PolynomialSet<ValueType>& F, Polynomial<ValueType>* g);
 
     // tries to make one step of Buchberger's algorithm, returns true if the step was made
     template<class Order, class ValueType>
@@ -61,15 +66,17 @@ std::pair<Monomial, ValueType> Algorithm::get_leading_term(const Polynomial<Valu
 }
 
 template<class Order, class ValueType>
-void Algorithm::reduce_by(const Polynomial<ValueType>& f, Polynomial<ValueType>* g) {
-    while (make_reduction_step<Order>(f, g));
+bool Algorithm::reduce_by(const Polynomial<ValueType>& f, Polynomial<ValueType>* g) {
+    bool something_changed = false;
+    while (make_reduction_step<Order>(f, g)) {
+        something_changed = true;
+    }
+    return something_changed;
 }
 
 template<class Order, class ValueType>
 void Algorithm::reduce_by(const PolynomialSet<ValueType>& F, Polynomial<ValueType>* g) {
-    for (const auto& f : F) {
-        reduce_by<Order>(f, g);
-    }
+    while (make_reduction_step<Order>(F, g));
 }
 
 template<class Order, class ValueType>
@@ -98,6 +105,16 @@ bool Algorithm::make_reduction_step(const Polynomial<ValueType>& f, Polynomial<V
     for (const auto& [monomial, coefficient] : *g) {
         if (monomial.is_divisible_by(f_lead)) {
             *g -= f * (monomial / f_lead) * (coefficient / f_coefficient);
+            return true;
+        }
+    }
+    return false;
+}
+
+template<class Order, class ValueType>
+bool Algorithm::make_reduction_step(const PolynomialSet<ValueType>& F, Polynomial<ValueType>* g) {
+    for (const auto& f : F) {
+        if (reduce_by<Order>(f, g)) {
             return true;
         }
     }
