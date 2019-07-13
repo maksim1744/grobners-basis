@@ -31,14 +31,42 @@ class Monomial {
     DegreeType get_degree(size_t i) const;
     void set_degree(size_t i, DegreeType degree);
 
-    Monomial& operator *= (const Monomial& other);
-    Monomial operator * (const Monomial& other) const;
+    friend Monomial& operator *= (Monomial& first, const Monomial& second) {
+        if (first.container_size() < second.container_size()) {
+            first.degrees_.resize(second.container_size(), 0);
+        }
+        for (size_t i = 0; i < second.container_size(); ++i) {
+            first.degrees_[i] += second.get_degree(i);
+        }
+        first.remove_last_zeros();
+        return first;
+    }
+    friend Monomial operator * (const Monomial& first, const Monomial& second) {
+        auto result = first;
+        return result *= second;
+    }
 
-    Monomial& operator /= (const Monomial& other);
-    Monomial operator / (const Monomial& other) const;
+    friend Monomial& operator /= (Monomial& first, const Monomial& second) {
+        if (first.container_size() < second.container_size()) {
+            first.degrees_.resize(second.container_size(), 0);
+        }
+        for (size_t i = 0; i < second.container_size(); ++i) {
+            first.degrees_[i] -= second.get_degree(i);
+        }
+        first.remove_last_zeros();
+        return first;
+    }
+    friend Monomial operator / (const Monomial& first, const Monomial& second) {
+        auto result = first;
+        return result /= second;
+    }
 
-    bool operator == (const Monomial& other) const;
-    bool operator != (const Monomial& other) const;
+    friend bool operator == (const Monomial& first, const Monomial& second) {
+        return first.degrees_ == second.degrees_;
+    }
+    friend bool operator != (const Monomial& first, const Monomial& second) {
+        return !(first == second);
+    }
 
     friend std::ostream& operator << (std::ostream& out, const Monomial& monomial);
 
@@ -113,49 +141,6 @@ void Monomial::set_degree(size_t i, DegreeType degree) {
     remove_last_zeros();
 }
 
-
-Monomial& Monomial::operator *= (const Monomial& other) {
-    if (container_size() < other.container_size()) {
-        degrees_.resize(other.container_size(), 0);
-    }
-    for (size_t i = 0; i < other.container_size(); ++i) {
-        degrees_[i] += other.get_degree(i);
-    }
-    remove_last_zeros();
-    return *this;
-}
-
-Monomial Monomial::operator * (const Monomial& other) const {
-    Monomial result = *this;
-    result *= other;
-    return result;
-}
-
-
-Monomial& Monomial::operator /= (const Monomial& other) {
-    if (container_size() < other.container_size()) {
-        degrees_.resize(other.container_size(), 0);
-    }
-    for (size_t i = 0; i < other.container_size(); ++i) {
-        degrees_[i] -= other.get_degree(i);
-    }
-    remove_last_zeros();
-    return *this;
-}
-
-Monomial Monomial::operator / (const Monomial& other) const {
-    Monomial result = *this;
-    result /= other;
-    return result;
-}
-
-bool Monomial::operator == (const Monomial& other) const {
-    return (degrees_ == other.degrees_);
-}
-
-bool Monomial::operator != (const Monomial& other) const {
-    return !(*this == other);
-}
 
 std::ostream& operator << (std::ostream& out, const Monomial& monomial) {
     bool use_alphabet = (monomial.container_size() <= 26);  // then we can use a..z as variables, otherwise x1,x2,...

@@ -39,25 +39,92 @@ class Polynomial {
     template<class MonomialOrder>
     std::vector<Monomial> get_monomials_sorted(const MonomialOrder& monomial_order) const;
 
-    Polynomial& operator += (const Polynomial& other);
-    Polynomial operator + (const Polynomial& other) const;
-    Polynomial& operator -= (const Polynomial& other);
-    Polynomial operator - (const Polynomial& other) const;
+    friend Polynomial& operator += (Polynomial& first, const Polynomial& second) {
+        for (const auto& [monomial, coefficient] : second) {
+            first.add_monomial(monomial, coefficient);
+        }
+        return first;
+    }
+    friend Polynomial operator + (const Polynomial& first, const Polynomial& second) {
+        auto result = first;
+        return result += second;
+    }
+    friend Polynomial& operator -= (Polynomial& first, const Polynomial& second) {
+        for (const auto& [monomial, coefficient] : second) {
+            first.add_monomial(monomial, -coefficient);
+        }
+        return first;
+    }
+    friend Polynomial operator - (const Polynomial& first, const Polynomial& second) {
+        auto result = first;
+        return result -= second;
+    }
 
-    Polynomial& operator *= (const Monomial& other);
-    Polynomial operator * (const Monomial& other) const;
-    Polynomial& operator *= (const ValueType& other);
-    Polynomial operator * (const ValueType& other) const;
-    Polynomial& operator *= (const Polynomial& other);
-    Polynomial operator * (const Polynomial& other) const;
+    friend Polynomial& operator *= (Polynomial& first, const Monomial& second) {
+        first = first * second;
+        return first;
+    }
+    friend Polynomial operator * (const Polynomial& first, const Monomial& second) {
+        Polynomial result;
+        for (const auto& [monomial, coefficient] : first) {
+            result.add_monomial(monomial * second, coefficient);
+        }
+        return result;
+    }
+    friend Polynomial& operator *= (Polynomial& first, const ValueType& second) {
+        if (second == ValueType(0)) {
+            first.set_to_zero();
+            return first;
+        }
+        for (auto& [monomial, coefficient] : first) {
+            coefficient *= second;
+        }
+        return first;
+    }
+    friend Polynomial operator * (const Polynomial& first, const ValueType& second) {
+        auto result = first;
+        return result *= second;
+    }
+    friend Polynomial& operator *= (Polynomial& first, const Polynomial& second) {
+        first = first * second;
+        return first;
+    }
+    friend Polynomial operator * (const Polynomial& first, const Polynomial& second) {
+        Polynomial result;
+        for (const auto& [monomial, coefficient] : second) {
+            result += first * monomial * coefficient;
+        }
+        return result;
+    }
 
-    Polynomial& operator /= (const Monomial& other);
-    Polynomial operator / (const Monomial& other) const;
-    Polynomial& operator /= (const ValueType& other);
-    Polynomial operator / (const ValueType& other) const;
+    friend Polynomial& operator /= (Polynomial& first, const Monomial& second) {
+        first = first / second;
+        return first;
+    }
+    friend Polynomial operator / (const Polynomial& first, const Monomial& second) {
+        Polynomial result;
+        for (const auto& [monomial, coefficient] : first) {
+            result.add_monomial(monomial / second, coefficient);
+        }
+        return result;
+    }
+    friend Polynomial& operator /= (Polynomial& first, const ValueType& second) {
+        for (auto& [monomial, coefficient] : first) {
+            coefficient /= second;
+        }
+        return first;
+    }
+    friend Polynomial operator / (const Polynomial& first, const ValueType& second) {
+        auto result = first;
+        return result /= second;
+    }
 
-    bool operator == (const Polynomial& other) const;
-    bool operator != (const Polynomial& other) const;
+    friend bool operator == (const Polynomial& first, const Polynomial& second) {
+        return first.data_ == second.data_;
+    }
+    friend bool operator != (const Polynomial& first, const Polynomial& second) {
+        return !(first == second);
+    }
 
     template<class OtherValueType>
     friend std::ostream& operator << (std::ostream& out, const Polynomial<OtherValueType>& polynomial);
@@ -154,126 +221,6 @@ std::vector<Monomial> Polynomial<ValueType>::get_monomials_sorted(const Monomial
 
 
 template<class ValueType>
-Polynomial<ValueType>& Polynomial<ValueType>::operator += (const Polynomial& other) {
-    for (const auto& [monomial, coefficient] : other) {
-        add_monomial(monomial, coefficient);
-    }
-}
-
-template<class ValueType>
-Polynomial<ValueType> Polynomial<ValueType>::operator + (const Polynomial& other) const {
-    Polynomial result = *this;
-    result += other;
-    return result;
-}
-
-template<class ValueType>
-Polynomial<ValueType>& Polynomial<ValueType>::operator -= (const Polynomial& other) {
-    for (const auto& [monomial, coefficient] : other) {
-        add_monomial(monomial, -coefficient);
-    }
-}
-
-template<class ValueType>
-Polynomial<ValueType> Polynomial<ValueType>::operator - (const Polynomial& other) const {
-    Polynomial result = *this;
-    result -= other;
-    return result;
-}
-
-template<class ValueType>
-Polynomial<ValueType>& Polynomial<ValueType>::operator *= (const Monomial& other) {
-    *this = *this * other;
-    return *this;
-}
-
-template<class ValueType>
-Polynomial<ValueType> Polynomial<ValueType>::operator * (const Monomial& other) const {
-    Polynomial result;
-    for (const auto& [monomial, coefficient] : *this) {
-        result.add_monomial(monomial * other, coefficient);
-    }
-    return result;
-}
-
-template<class ValueType>
-Polynomial<ValueType>& Polynomial<ValueType>::operator *= (const ValueType& other) {
-    if (other == ValueType(0)) {
-        set_to_zero();
-        return *this;
-    }
-    for (auto& [monomial, coefficient] : *this) {
-        coefficient *= other;
-    }
-    return *this;
-}
-
-template<class ValueType>
-Polynomial<ValueType> Polynomial<ValueType>::operator * (const ValueType& other) const {
-    Polynomial result = *this;
-    result *= other;
-    return result;
-}
-
-template<class ValueType>
-Polynomial<ValueType>& Polynomial<ValueType>::operator *= (const Polynomial& other) {
-    *this = *this * other;
-    return *this;
-}
-
-template<class ValueType>
-Polynomial<ValueType> Polynomial<ValueType>::operator * (const Polynomial& other) const {
-    Polynomial result;
-    for (const auto& [monomial, coefficient] : other) {
-        result += *this * monomial * coefficient;
-    }
-    return result;
-}
-
-template<class ValueType>
-Polynomial<ValueType>& Polynomial<ValueType>::operator /= (const Monomial& other) {
-    *this = *this / other;
-    return *this;
-}
-
-template<class ValueType>
-Polynomial<ValueType> Polynomial<ValueType>::operator / (const Monomial& other) const {
-    Polynomial result;
-    for (const auto& [monomial, coefficient] : *this) {
-        result.add_monomial(monomial / other, coefficient);
-    }
-    return result;
-}
-
-template<class ValueType>
-Polynomial<ValueType>& Polynomial<ValueType>::operator /= (const ValueType& other) {
-    for (auto& [monomial, coefficient] : *this) {
-        coefficient /= other;
-    }
-    return *this;
-}
-
-template<class ValueType>
-Polynomial<ValueType> Polynomial<ValueType>::operator / (const ValueType& other) const {
-    Polynomial result = *this;
-    result /= other;
-    return result;
-}
-
-template<class ValueType>
-bool Polynomial<ValueType>::operator == (const Polynomial& other) const {
-    return data_ == other.data_;
-}
-
-template<class ValueType>
-bool Polynomial<ValueType>::operator != (const Polynomial& other) const {
-    return !(*this == other);
-}
-
-
-
-
-template<class ValueType>
 std::ostream& operator << (std::ostream& out, const Polynomial<ValueType>& polynomial) {
     if (polynomial.empty()) {
         return out << ValueType(0);
@@ -289,7 +236,6 @@ std::ostream& operator << (std::ostream& out, const Polynomial<ValueType>& polyn
     }
     return out;
 }
-
 
 
 template<class ValueType>

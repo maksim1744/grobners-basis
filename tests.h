@@ -46,6 +46,9 @@ void Tests::test_all() {
 void Tests::test_modular() {
     using Modular = Modular<17ll>;
 
+    assert(Modular(15) + 16 == Modular(14));
+    assert(15 + Modular(16) == Modular(14));
+
     assert(Modular(2) == Modular(-15));
     assert(Modular(36) == Modular(-15));
     assert(Modular(1) != Modular(-1));

@@ -15,21 +15,6 @@ class Modular {
 
     static ValueType make_normal(ValueType value);
 
-    Modular& operator += (const Modular& other);
-    // Modular operator + (const Modular& other) const;
-    template<auto Q>
-    friend Modular<Q> operator + (const Modular<Q>& first, const Modular<Q>& second);
-    Modular& operator -= (const Modular& other);
-    Modular operator - (const Modular& other) const;
-    Modular& operator *= (const Modular& other);
-    Modular operator * (const Modular& other) const;
-    Modular& operator /= (const Modular& other);
-    Modular operator / (const Modular& other) const;
-    Modular operator - () const;
-
-    bool operator == (const Modular& other) const;
-    bool operator != (const Modular& other) const;
-
     Modular get_pow(ValueType power) const;
     Modular get_inverse() const;
     ValueType get_value() const;
@@ -38,6 +23,54 @@ class Modular {
     friend std::ostream& operator << (std::ostream& out, const Modular<Q>& other);
     template<auto Q>
     friend std::istream& operator >> (std::istream& in, Modular<Q>& other);
+
+    Modular operator - () const;
+
+    friend Modular& operator += (Modular& first, const Modular& second) {
+        first.value_ += second.value_;
+        if (first.value_ >= P) {
+            first.value_ -= P;
+        }
+        return first;
+    }
+    friend Modular operator + (const Modular& first, const Modular& second) {
+        auto result = first;
+        return result += second;
+    }
+    friend Modular& operator -= (Modular& first, const Modular& second) {
+        first.value_ -= second.value_;
+        if (first.value_ < 0) {
+            first.value_ += P;
+        }
+        return first;
+    }
+    friend Modular operator - (const Modular& first, const Modular& second) {
+        auto result = first;
+        return result -= second;
+    }
+    friend Modular& operator *= (Modular& first, const Modular& second) {
+        first.value_ = first.value_ * second.value_ % P;
+        return first;
+    }
+    friend Modular operator * (const Modular& first, const Modular& second) {
+        auto result = first;
+        return result *= second;
+    }
+    friend Modular& operator /= (Modular& first, const Modular& second) {
+        first *= second.get_inverse();
+        return first;
+    }
+    friend Modular operator / (const Modular& first, const Modular& second) {
+        auto result = first;
+        return result /= second;
+    }
+
+    friend bool operator == (const Modular& first, const Modular& second) {
+        return first.value_ == second.value_;
+    }
+    friend bool operator != (const Modular& first, const Modular& second) {
+        return !(first == second);
+    }
 
   private:
     ValueType value_;
@@ -58,77 +91,8 @@ typename Modular<P>::ValueType Modular<P>::make_normal(typename Modular<P>::Valu
 }
 
 template<auto P>
-Modular<P>& Modular<P>::operator += (const Modular& other) {
-    value_ += other.value_;
-    if (value_ >= P) {
-        value_ -= P;
-    }
-    return *this;
-}
-
-template<auto P>
-Modular<P> operator + (const Modular<P>& first, const Modular<P>& second) {
-    auto result = first;
-    return result += second;
-}
-// template<auto P>
-// Modular<P> Modular<P>::operator + (const Modular& other) const {
-//     Modular<P> result = *this;
-//     return result += other;
-// }
-
-template<auto P>
-Modular<P>& Modular<P>::operator -= (const Modular& other) {
-    value_ -= other.value_;
-    if (value_ < 0) {
-        value_ += P;
-    }
-    return *this;
-}
-
-template<auto P>
-Modular<P> Modular<P>::operator - (const Modular& other) const {
-    Modular<P> result = *this;
-    return result -= other;
-}
-
-template<auto P>
-Modular<P>& Modular<P>::operator *= (const Modular& other) {
-    value_ = value_ * other.value_ % P;
-    return *this;
-}
-
-template<auto P>
-Modular<P> Modular<P>::operator * (const Modular& other) const {
-    Modular<P> result = *this;
-    return result *= other;
-}
-
-template<auto P>
-Modular<P>& Modular<P>::operator /= (const Modular& other) {
-    (*this) *= other.get_inverse();
-    return *this;
-}
-
-template<auto P>
-Modular<P> Modular<P>::operator / (const Modular& other) const {
-    Modular<P> result = *this;
-    return result /= other;
-}
-
-template<auto P>
 Modular<P> Modular<P>::operator - () const {
-    return Modular(0) - (*this);
-}
-
-template<auto P>
-bool Modular<P>::operator == (const Modular& other) const {
-    return value_ == other.value_;
-}
-
-template<auto P>
-bool Modular<P>::operator != (const Modular& other) const {
-    return !(*this == other);
+    return Modular<P>(-value_);
 }
 
 
