@@ -27,6 +27,12 @@ class LexOrder {
     bool operator()(const Monomial& first, const Monomial& second) const;
 };
 
+class RevLexOrder {
+  public:
+    static int cmp(const Monomial& first, const Monomial& second);
+
+    bool operator()(const Monomial& first, const Monomial& second) const;
+};
 
 
 template<class FirstOrder, class SecondOrder>
@@ -62,23 +68,33 @@ bool DegOrder::operator()(const Monomial& first, const Monomial& second) const {
 
 
 int LexOrder::cmp(const Monomial& first, const Monomial& second) {
-    for (size_t i = 0; i < std::min(first.container_size(), second.container_size()); ++i) {
+    for (size_t i = 0; i < std::max(first.container_size(), second.container_size()); ++i) {
         if (first.get_degree(i) < second.get_degree(i)) {
             return -1;
         } else if (first.get_degree(i) > second.get_degree(i)) {
             return 1;
         }
     }
-    if (first.container_size() < second.container_size()) {
-        return -1;
-    } else if (first.container_size() > second.container_size()) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return 0;
 }
 
 bool LexOrder::operator()(const Monomial& first, const Monomial& second) const {
+    return cmp(first, second) < 0;
+}
+
+
+int RevLexOrder::cmp(const Monomial& first, const Monomial& second) {
+    for (size_t i = 0; i < std::max(first.container_size(), second.container_size()); ++i) {
+        if (first.get_degree(i) < second.get_degree(i)) {
+            return 1;
+        } else if (first.get_degree(i) > second.get_degree(i)) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+bool RevLexOrder::operator()(const Monomial& first, const Monomial& second) const {
     return cmp(first, second) < 0;
 }
 
