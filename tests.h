@@ -18,19 +18,19 @@ namespace grobner {
 
 class Tests {
   public:
-    static void test_all();
+    inline static void test_all();
 
-    static void test_modular();
-    static void test_monomial();
-    static void test_polynomial();
-    static void test_polynomial_set();
-    static void test_monomial_order();
-    static void test_polynomial_order();
-    static void test_algorithm();
+    inline static void test_modular();
+    inline static void test_monomial();
+    inline static void test_polynomial();
+    inline static void test_polynomial_set();
+    inline static void test_monomial_order();
+    inline static void test_polynomial_order();
+    inline static void test_algorithm();
  
   private:
-    static void test_rational_polynomial();
-    static void test_z_p_polynomial();
+    inline static void test_rational_polynomial();
+    inline static void test_z_p_polynomial();
 };
 
 void Tests::test_all() {
