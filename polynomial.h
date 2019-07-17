@@ -131,7 +131,6 @@ class Polynomial {
 
   private:
     std::string to_string(const ValueType& value) const;
-    ValueType read_coefficient(std::stringstream& ss) const;
     void remove_zero_coefficients();
 
     Containter data_;
@@ -155,8 +154,8 @@ Polynomial<ValueType>::Polynomial(ValueType value) {
 template<class ValueType>
 Polynomial<ValueType>::Polynomial(std::string s) {
     std::stringstream ss(s);
-    while (!ss.eof()) {
-        ValueType coefficient = read_coefficient(ss);
+    ValueType coefficient;
+    while (ss >> coefficient) {
         Monomial monomial;
         monomial.read(ss);
         data_[monomial] += coefficient;
@@ -222,7 +221,7 @@ std::vector<Monomial> Polynomial<ValueType>::get_monomials_sorted(const Monomial
 
 template<class ValueType>
 std::ostream& operator << (std::ostream& out, const Polynomial<ValueType>& polynomial) {
-    if (polynomial.empty()) {
+    if (polynomial.is_zero()) {
         return out << ValueType(0);
     }
     bool is_first = true;
@@ -243,13 +242,6 @@ std::string Polynomial<ValueType>::to_string(const ValueType& value) const {
     std::stringstream ss;
     ss << value;
     return ss.str();
-}
-
-template<class ValueType>
-ValueType Polynomial<ValueType>::read_coefficient(std::stringstream& ss) const {
-    ValueType coefficient;
-    ss >> coefficient;
-    return coefficient;
 }
 
 template<class ValueType>

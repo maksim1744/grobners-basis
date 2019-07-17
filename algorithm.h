@@ -38,15 +38,29 @@ class Algorithm {
     template<class Order, class ValueType>
     static bool make_reduction_step(const PolynomialSet<ValueType>& F, Polynomial<ValueType>* g);
 
-    // tries to make one step of Buchberger's algorithm, returns true if the step was made
     template<class Order, class ValueType>
-    static bool make_buchberger_step(PolynomialSet<ValueType>* F);    
+    static void add_new_s(const PolynomialSet<ValueType>& F, const Polynomial<ValueType>& new_f, PolynomialSet<ValueType>* set_of_s);
 };
 
 
 template<class Order, class ValueType>
 void Algorithm::extend_to_grobners_basis(PolynomialSet<ValueType>* F) {
-    while (make_buchberger_step<Order>(F));
+    PolynomialSet<ValueType> set_of_s;
+    for (auto it = F->pbegin(); it != F->pend(); ++it) {
+        auto S = get_S<Order>(it.first(), it.second());
+        if (!S.is_zero()) {
+            set_of_s.insert(S);
+        }
+    }
+    while (!set_of_s.empty()) {
+        auto S = *set_of_s.begin();
+        set_of_s.erase(set_of_s.begin());
+        reduce_by<Order>(*F, &S);
+        if (!S.is_zero()) {
+            add_new_s<Order>(*F, S, &set_of_s);
+            F->insert(S);
+        }
+    }
 }
 
 template<class Order, class ValueType>
@@ -122,16 +136,13 @@ bool Algorithm::make_reduction_step(const PolynomialSet<ValueType>& F, Polynomia
 }
 
 template<class Order, class ValueType>
-bool Algorithm::make_buchberger_step(PolynomialSet<ValueType>* F) {
-    for (auto it = F->pbegin(); it != F->pend(); ++it) {
-        auto S = get_S<Order>(it.first(), it.second());
-        reduce_by<Order>(*F, &S);
+void Algorithm::add_new_s(const PolynomialSet<ValueType>& F, const Polynomial<ValueType>& new_f, PolynomialSet<ValueType>* set_of_s) {
+    for (const auto& g : F) {
+        auto S = get_S<Order>(new_f, g);
         if (!S.is_zero()) {
-            F->insert(S);
-            return true;
+            set_of_s->insert(S);
         }
     }
-    return false;
 }
 
 }  // grobner
