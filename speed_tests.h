@@ -51,14 +51,14 @@ void SpeedTests::test_cyclic(int variable_count) {
     auto cyclic = get_cyclic<ValueType>(variable_count);
 
     clock_t elapsed_time = 0;
-    test_time(Algorithm::extend_to_grobners_basis<DegRevLex, ValueType>, elapsed_time).call(&cyclic);
-    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, elapsed_time).call(&cyclic);
+    test_time(Algorithm::extend_to_grobners_basis<DegRevLex, ValueType>, &elapsed_time).call(&cyclic);
+    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, &elapsed_time).call(&cyclic);
     std::cout << "Cyclic(" << variable_count << ") with DegRevLex: "  <<
         (long double)elapsed_time / CLOCKS_PER_SEC << "s" << std::endl;
 
     elapsed_time = 0;
     cyclic = get_cyclic<ValueType>(variable_count);
-    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, elapsed_time).call(&cyclic);
+    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, &elapsed_time).call(&cyclic);
     std::cout << "Cyclic(" << variable_count << ") without DegRevLex: "  <<
         (long double)elapsed_time / CLOCKS_PER_SEC << "s" << std::endl;
 }
