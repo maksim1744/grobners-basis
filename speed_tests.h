@@ -10,6 +10,7 @@
 #include "monomial.h"
 #include "polynomial.h"
 #include "polynomial_set.h"
+#include "timer_wrapper.h"
 
 namespace grobner {
 
@@ -30,7 +31,7 @@ class SpeedTests {
 
 void SpeedTests::run_tests() {
     // using ValueType = boost::rational<long long>;
-    using ValueType = Modular<(long long)(2)>;
+    using ValueType = Modular<(long long)1e9 + 7>;
 
     test_cyclic<ValueType>(1);
     test_cyclic<ValueType>(2);
@@ -48,25 +49,27 @@ void SpeedTests::test_cyclic(int variable_count) {
     using DegRevLex = OrderSum<DegOrder, RevLexOrder>;
 
     auto cyclic = get_cyclic<ValueType>(variable_count);
-    auto start_time = clock();
-    Algorithm::extend_to_grobners_basis<DegRevLex>(&cyclic);
-    Algorithm::extend_to_grobners_basis<Lex>(&cyclic);
-    std::cout << "Cyclic(" << variable_count << ") with DegRevLex: "  <<
-        (long double)(clock() - start_time) / CLOCKS_PER_SEC << "s" << std::endl;
 
+    clock_t elapsed_time = 0;
+    test_time(Algorithm::extend_to_grobners_basis<DegRevLex, ValueType>, elapsed_time).call(&cyclic);
+    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, elapsed_time).call(&cyclic);
+    std::cout << "Cyclic(" << variable_count << ") with DegRevLex: "  <<
+        (long double)elapsed_time / CLOCKS_PER_SEC << "s" << std::endl;
+
+    elapsed_time = 0;
     cyclic = get_cyclic<ValueType>(variable_count);
-    start_time = clock();
-    Algorithm::extend_to_grobners_basis<Lex>(&cyclic);
+    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, elapsed_time).call(&cyclic);
     std::cout << "Cyclic(" << variable_count << ") without DegRevLex: "  <<
-        (long double)(clock() - start_time) / CLOCKS_PER_SEC << "s" << std::endl;
+        (long double)elapsed_time / CLOCKS_PER_SEC << "s" << std::endl;
 }
 
 template<class ValueType>
 PolynomialSet<ValueType> SpeedTests::get_cyclic(int variable_count) {
     PolynomialSet<ValueType> result;
-    for (int i = 1; i <= variable_count; ++i) {
+    for (int i = 1; i < variable_count; ++i) {
         result.insert(get_sigma<ValueType>(variable_count, i));
     }
+    result.insert(get_sigma<ValueType>(variable_count, variable_count) - ValueType(1));
     return result;
 }
 

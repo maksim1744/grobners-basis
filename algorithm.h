@@ -65,6 +65,8 @@ void Algorithm::extend_to_grobners_basis(PolynomialSet<ValueType>* F) {
 
 template<class Order, class ValueType>
 std::pair<Monomial, ValueType> Algorithm::get_leading_term(const Polynomial<ValueType>& f) {
+    assert(!f.is_zero());
+
     bool is_first = true;
     Monomial result;
     ValueType result_coefficient;
@@ -112,9 +114,7 @@ Monomial Algorithm::get_LCM(const Monomial& f, const Monomial& g) {
 
 template<class Order, class ValueType>
 bool Algorithm::make_reduction_step(const Polynomial<ValueType>& f, Polynomial<ValueType>* g) {
-    if (f.is_zero()) {
-        return false;
-    }
+    assert(!f.is_zero());
     auto [f_lead, f_coefficient] = get_leading_term<Order>(f);
     for (const auto& [monomial, coefficient] : *g) {
         if (monomial.is_divisible_by(f_lead)) {
