@@ -40,7 +40,7 @@ void SpeedTests::run_tests() {
     test_cyclic<ValueType>(1);
     test_cyclic<ValueType>(2);
     test_cyclic<ValueType>(3);
-    test_cyclic<ValueType>(4);
+    // test_cyclic<ValueType>(4);
     // test_cyclic<ValueType>(5);
     // test_cyclic<ValueType>(6);
     // test_cyclic<ValueType>(7);
@@ -54,18 +54,21 @@ void SpeedTests::test_cyclic(int variable_count) {
 
     std::cout << "Testing cyclic(" << variable_count << ")..." << std::endl;
 
-    auto cyclic = get_cyclic<ValueType>(variable_count);
-    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, "Without DegRevLex: ")(&cyclic);
-    for (auto f : cyclic) {
+    auto cyclic1 = get_cyclic<ValueType>(variable_count);
+    test_time(Algorithm::extend_to_grobners_basis<Lex, ValueType>, "Without DegRevLex: ")(&cyclic1);
+    for (auto f : cyclic1) {
         std::cout << f << std::endl;
     }
     std::cout << std::endl;
-    cyclic = get_cyclic<ValueType>(variable_count);
-    test_time(run_buchberger_with_degrevlex<ValueType>, "With DegRevLex: ")(&cyclic);
-    for (auto f : cyclic) {
+
+    auto cyclic2 = get_cyclic<ValueType>(variable_count);
+    test_time(run_buchberger_with_degrevlex<ValueType>, "With DegRevLex: ")(&cyclic2);
+    for (auto f : cyclic2) {
         std::cout << f << std::endl;
     }
     std::cout << std::endl;
+
+    assert(cyclic1 == cyclic2);
 }
 
 template<class ValueType>

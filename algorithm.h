@@ -14,6 +14,9 @@ class Algorithm {
     static void extend_to_grobners_basis(PolynomialSet<ValueType>* F);
 
     template<class Order, class ValueType>
+    static void auto_reduce(PolynomialSet<ValueType>* F);
+
+    template<class Order, class ValueType>
     static std::pair<Monomial, ValueType> get_leading_term(const Polynomial<ValueType>& f);
 
     // returns true if something changed (g ~> g_0 != g)
@@ -59,6 +62,25 @@ void Algorithm::extend_to_grobners_basis(PolynomialSet<ValueType>* F) {
         if (!S.is_zero()) {
             add_new_s<Order>(*F, S, &set_of_s);
             F->insert(S);
+        }
+    }
+    auto_reduce<Order>(F);
+}
+
+template<class Order, class ValueType>
+void Algorithm::auto_reduce(PolynomialSet<ValueType>* F) {
+    PolynomialSet<ValueType> F1;
+    for (auto f : *F) {
+        auto [monomial, coefficient] = get_leading_term<Order>(f);
+        f /= coefficient;
+        F1.insert(f);
+    }
+    *F = F1;
+    for (auto f : F1) {
+        F->erase(f);
+        reduce_by<Order>(*F, &f);
+        if (!f.is_zero()) {
+            F->insert(f);
         }
     }
 }
