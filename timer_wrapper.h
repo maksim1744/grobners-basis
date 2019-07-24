@@ -2,35 +2,42 @@
 #define GROBNER_TIMER_WRAPPER_H_
 
 #include <ctime>
+#include <string>
 
 namespace grobner {
 
-template <typename TFunction>
+template<typename TFunction>
 class TimerWrapper {
   public:
-    TimerWrapper(TFunction function, clock_t* elapsed_time):
+    TimerWrapper(TFunction function, std::string message):
         call(function),
-        start_time_(clock()),
-        elapsed_time_(elapsed_time) {
+        message_(message),
+        start_time_(clock()) {
+    }
+
+    template<class... TArgs>
+    auto operator() (TArgs&&... args) const {
+        return call(std::forward<TArgs>(args)...);
     }
 
     ~TimerWrapper() {
-        const clock_t endTime_ = clock();
-        const clock_t diff = (endTime_ - start_time_);
-        *elapsed_time_ += diff;
+        auto endTime_ = clock();
+        auto diff = (endTime_ - start_time_);
+        long double elapsed_time = (long double)(diff) / CLOCKS_PER_SEC;
+        std::cout << message_ << elapsed_time << std::endl;
     }
 
     TFunction call;
 
   private:
-    const clock_t start_time_;
-    clock_t* elapsed_time_;
+    clock_t start_time_;
+    std::string message_;
 };
 
 
-template <typename TFunction>
-TimerWrapper<TFunction> test_time(TFunction function, clock_t* elapsed_time) {
-    return TimerWrapper<TFunction>(function, elapsed_time);
+template<typename TFunction>
+TimerWrapper<TFunction> test_time(TFunction function, const std::string& message) {
+    return TimerWrapper<TFunction>(function, message);
 }
 
 }  // grobner

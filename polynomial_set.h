@@ -28,6 +28,7 @@ class PolynomialSet {
     void insert(const Polynomial& polynomial);
     void erase(const Polynomial& polynomial);
     void erase(iterator it);
+    Polynomial retrieve_first();
     void clear();
     bool empty() const;
     size_t size() const;
@@ -73,6 +74,13 @@ void PolynomialSet<ValueType>::erase(const Polynomial& polynomial) {
 template<class ValueType>
 void PolynomialSet<ValueType>::erase(iterator it) {
     data_.erase(it);
+}
+
+template<class ValueType>
+typename PolynomialSet<ValueType>::Polynomial PolynomialSet<ValueType>::retrieve_first() {
+    auto result = *begin();
+    erase(begin());
+    return std::move(result);
 }
 
 template<class ValueType>

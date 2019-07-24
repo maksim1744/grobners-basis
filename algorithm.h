@@ -32,7 +32,7 @@ class Algorithm {
   private:
     // tries to reduce g by f, returns true if the reduction was made
     template<class Order, class ValueType>
-    static bool make_reduction_step(const Polynomial<ValueType>& f, Polynomial<ValueType>* g);
+    static bool make_reduction_step(const Polynomial<ValueType>& f, const Monomial& f_lead, const ValueType& f_coefficient, Polynomial<ValueType>* g);
 
     // tries to reduce g by F, returns true if the reduction was made
     template<class Order, class ValueType>
@@ -48,13 +48,13 @@ void Algorithm::extend_to_grobners_basis(PolynomialSet<ValueType>* F) {
     PolynomialSet<ValueType> set_of_s;
     for (auto it = F->pbegin(); it != F->pend(); ++it) {
         auto S = get_S<Order>(it.first(), it.second());
+        reduce_by<Order>(*F, &S);
         if (!S.is_zero()) {
             set_of_s.insert(S);
         }
     }
     while (!set_of_s.empty()) {
-        auto S = *set_of_s.begin();
-        set_of_s.erase(set_of_s.begin());
+        auto S = set_of_s.retrieve_first();
         reduce_by<Order>(*F, &S);
         if (!S.is_zero()) {
             add_new_s<Order>(*F, S, &set_of_s);
@@ -83,8 +83,11 @@ std::pair<Monomial, ValueType> Algorithm::get_leading_term(const Polynomial<Valu
 
 template<class Order, class ValueType>
 bool Algorithm::reduce_by(const Polynomial<ValueType>& f, Polynomial<ValueType>* g) {
+    assert(!f.is_zero());
+    auto [f_lead, f_coefficient] = get_leading_term<Order>(f);
+
     bool something_changed = false;
-    while (make_reduction_step<Order>(f, g)) {
+    while (make_reduction_step<Order>(f, f_lead, f_coefficient, g)) {
         something_changed = true;
     }
     return something_changed;
@@ -113,9 +116,7 @@ Monomial Algorithm::get_LCM(const Monomial& f, const Monomial& g) {
 
 
 template<class Order, class ValueType>
-bool Algorithm::make_reduction_step(const Polynomial<ValueType>& f, Polynomial<ValueType>* g) {
-    assert(!f.is_zero());
-    auto [f_lead, f_coefficient] = get_leading_term<Order>(f);
+bool Algorithm::make_reduction_step(const Polynomial<ValueType>& f, const Monomial& f_lead, const ValueType& f_coefficient, Polynomial<ValueType>* g) {
     for (const auto& [monomial, coefficient] : *g) {
         if (monomial.is_divisible_by(f_lead)) {
             *g -= f * (monomial / f_lead) * (coefficient / f_coefficient);
@@ -127,18 +128,20 @@ bool Algorithm::make_reduction_step(const Polynomial<ValueType>& f, Polynomial<V
 
 template<class Order, class ValueType>
 bool Algorithm::make_reduction_step(const PolynomialSet<ValueType>& F, Polynomial<ValueType>* g) {
+    bool something_changed = false;
     for (const auto& f : F) {
         if (reduce_by<Order>(f, g)) {
-            return true;
+            something_changed = true;
         }
     }
-    return false;
+    return something_changed;
 }
 
 template<class Order, class ValueType>
 void Algorithm::add_new_s(const PolynomialSet<ValueType>& F, const Polynomial<ValueType>& new_f, PolynomialSet<ValueType>* set_of_s) {
     for (const auto& g : F) {
         auto S = get_S<Order>(new_f, g);
+        reduce_by<Order>(F, &S);
         if (!S.is_zero()) {
             set_of_s->insert(S);
         }
