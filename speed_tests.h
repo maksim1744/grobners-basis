@@ -40,11 +40,13 @@ void SpeedTests::run_tests() {
     test_cyclic<ValueType>(1);
     test_cyclic<ValueType>(2);
     test_cyclic<ValueType>(3);
-    // test_cyclic<ValueType>(4);
-    // test_cyclic<ValueType>(5);
-    // test_cyclic<ValueType>(6);
-    // test_cyclic<ValueType>(7);
-    // test_cyclic<ValueType>(8);
+    test_cyclic<ValueType>(4);
+    test_cyclic<ValueType>(5);
+    test_cyclic<ValueType>(6);
+    test_cyclic<ValueType>(7);
+    test_cyclic<ValueType>(8);
+    test_cyclic<ValueType>(9);
+    test_cyclic<ValueType>(10);
 }
 
 template<class ValueType>
@@ -61,14 +63,14 @@ void SpeedTests::test_cyclic(int variable_count) {
     }
     std::cout << std::endl;
 
-    auto cyclic2 = get_cyclic<ValueType>(variable_count);
-    test_time(run_buchberger_with_degrevlex<ValueType>, "With DegRevLex: ")(&cyclic2);
-    for (auto f : cyclic2) {
-        std::cout << f << std::endl;
-    }
-    std::cout << std::endl;
+    // auto cyclic2 = get_cyclic<ValueType>(variable_count);
+    // test_time(run_buchberger_with_degrevlex<ValueType>, "With DegRevLex: ")(&cyclic2);
+    // for (auto f : cyclic2) {
+    //     std::cout << f << std::endl;
+    // }
+    // std::cout << std::endl;
 
-    assert(cyclic1 == cyclic2);
+    // assert(cyclic1 == cyclic2);
 }
 
 template<class ValueType>

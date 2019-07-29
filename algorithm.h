@@ -48,10 +48,12 @@ class Algorithm {
 
 template<class Order, class ValueType>
 void Algorithm::extend_to_grobners_basis(PolynomialSet<ValueType>* F) {
+    auto_reduce<Order>(F);
+
     PolynomialSet<ValueType> set_of_s;
     for (auto it = F->pbegin(); it != F->pend(); ++it) {
         auto S = get_S<Order>(it.first(), it.second());
-        reduce_by<Order>(*F, &S);
+        // reduce_by<Order>(*F, &S);
         if (!S.is_zero()) {
             set_of_s.insert(S);
         }
@@ -62,6 +64,7 @@ void Algorithm::extend_to_grobners_basis(PolynomialSet<ValueType>* F) {
         if (!S.is_zero()) {
             add_new_s<Order>(*F, S, &set_of_s);
             F->insert(S);
+            auto_reduce<Order>(F);
         }
     }
     auto_reduce<Order>(F);
